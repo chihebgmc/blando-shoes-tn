@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Joi from 'joi';
+import { cartItemSchema } from './cartItemModel.js';
 
 // Define the user schema
 const userSchema = new mongoose.Schema(
@@ -18,6 +19,10 @@ const userSchema = new mongoose.Schema(
       enum: ['admin', 'user'],
       default: 'user',
       trim: true,
+    },
+    cart: {
+      type: [cartItemSchema],
+      default: [],
     },
   },
   {
@@ -36,9 +41,13 @@ userSchema.pre('save', async function (next) {
 
 // Generate JWT token and save it in cookie
 userSchema.methods.generateToken = function (res) {
-  const token = jwt.sign({ userId: this._id }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
-  });
+  const token = jwt.sign(
+    { userId: this._id, userRole: this.role },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '30d',
+    }
+  );
 
   res.cookie('jwt', token, {
     httpOnly: true,

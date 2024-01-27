@@ -13,6 +13,7 @@ import {
 } from '../controllers/userController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import asyncHandler from 'express-async-handler';
+import { admin } from '../middleware/adminMiddleware.js';
 
 // Initialize router
 const router = express.Router();
@@ -26,6 +27,7 @@ router
   .get(asyncHandler(protect), asyncHandler(getUserProfile))
   .put(asyncHandler(protect), asyncHandler(updateUserProfile));
 
+// Export the module
 export default router;
 
 // asyncHandler(protect),
