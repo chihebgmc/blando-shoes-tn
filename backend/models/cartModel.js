@@ -4,8 +4,8 @@ import { cartItemSchema } from './cartItemModel';
 
 // Define the cart schema
 const cartSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  items: [cartItemSchema],
+  items: { type: [cartItemSchema], default: [] },
+  total: Number,
 });
 
 // Define the cart model

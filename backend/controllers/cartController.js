@@ -1,4 +1,5 @@
-import CartItem from '../models/cartItemModel.js';
+import CartItem, { validate } from '../models/cartItemModel.js';
+import Product from '../models/productModel.js';
 
 const addToCart = async (req, res) => {
   const user = req.user;
@@ -7,12 +8,22 @@ const addToCart = async (req, res) => {
     res.status(404);
     throw new Error('User not found');
   }
+
+  const { value, error } = validate({ product, quantity });
+  if (error) {
+    res.status(400);
+    throw new Error(error.message);
+  }
+
+  const { price } = await Product.findById(product);
   const item = user.cart.find(item => item.product.toString() === product);
 
   if (item) {
-    item.quantity++;
+    item.amount = ++item.quantity * price;
   } else {
-    const cartItem = new CartItem({ product, quantity });
+    const amount = value.quantity * price;
+    const cartItem = new CartItem({ product, quantity, amount });
+    console.log(cartItem);
     user.cart.push(cartItem);
   }
 
@@ -25,7 +36,12 @@ const getCartItems = async (req, res) => {
     res.status(404);
     throw new Error('User not found');
   }
-  res.json(user.cart);
+
+  const total = user.cart.reduce(
+    (accumulator, currentItem) => accumulator + currentItem.amount,
+    0
+  );
+  res.json({ cart: user.cart, total });
 };
 
 const updateOneItem = async (req, res) => {

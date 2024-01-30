@@ -19,7 +19,7 @@ import { admin } from '../middleware/adminMiddleware.js';
 const router = express.Router();
 
 // Define all user's routes
-router.post('/', asyncHandler(registerUser));
+router.post('/register', asyncHandler(registerUser));
 router.post('/auth', asyncHandler(authUser));
 router.post('/logout', asyncHandler(logoutUser));
 router
