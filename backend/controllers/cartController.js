@@ -3,26 +3,35 @@ import Product from '../models/productModel.js';
 
 const addToCart = async (req, res) => {
   const user = req.user;
-  const { product, quantity } = req.body;
+  const { product, size, color, quantity } = req.body;
   if (!user) {
     res.status(404);
     throw new Error('User not found');
   }
 
-  const { value, error } = validate({ product, quantity });
+  const { value, error } = validate({ product, size, color, quantity });
   if (error) {
     res.status(400);
     throw new Error(error.message);
   }
 
-  const { price } = await Product.findById(product);
+  const { price, reference, img } = await Product.findById(product);
+
   const item = user.cart.find(item => item.product.toString() === product);
 
   if (item) {
     item.amount = ++item.quantity * price;
   } else {
     const amount = value.quantity * price;
-    const cartItem = new CartItem({ product, quantity, amount });
+    const cartItem = new CartItem({
+      product,
+      reference,
+      img,
+      size,
+      color,
+      quantity,
+      amount,
+    });
     console.log(cartItem);
     user.cart.push(cartItem);
   }
