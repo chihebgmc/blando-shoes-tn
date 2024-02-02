@@ -32,7 +32,6 @@ const addToCart = async (req, res) => {
       quantity,
       amount,
     });
-    console.log(cartItem);
     user.cart.push(cartItem);
   }
 

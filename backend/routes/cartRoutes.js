@@ -20,13 +20,13 @@ const router = express.Router();
 // Define all cart routes
 router
   .route('/')
-  .post(protect, asyncHandler(addToCart))
-  .get(protect, asyncHandler(getCartItems))
-  .delete(protect, asyncHandler(deleteManyItems));
+  .post(asyncHandler(protect), asyncHandler(addToCart))
+  .get(asyncHandler(protect), asyncHandler(getCartItems))
+  .delete(asyncHandler(protect), asyncHandler(deleteManyItems));
 router
   .route('/:id')
-  .put(protect, asyncHandler(updateOneItem))
-  .delete(protect, asyncHandler(deleteOneItem));
+  .put(asyncHandler(protect), asyncHandler(updateOneItem))
+  .delete(asyncHandler(protect), asyncHandler(deleteOneItem));
 
 // Export the module
 export default router;
