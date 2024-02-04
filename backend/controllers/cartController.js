@@ -9,7 +9,10 @@ const addToCart = async (req, res) => {
     throw new Error('User not found');
   }
 
-  const { value, error } = validate({ product, size, color, quantity });
+  const { value, error } = validate(
+    { product, size, color, quantity },
+    { update: false }
+  );
   if (error) {
     res.status(400);
     throw new Error(error.message);
@@ -30,6 +33,7 @@ const addToCart = async (req, res) => {
       size,
       color,
       quantity,
+      price,
       amount,
     });
     user.cart.push(cartItem);
@@ -54,6 +58,11 @@ const getCartItems = async (req, res) => {
 
 const updateOneItem = async (req, res) => {
   const { quantity } = req.body;
+  const { value, error } = validate({ quantity }, { update: true });
+  if (error) {
+    res.status(400);
+    throw new Error(error.message);
+  }
   const user = req.user;
   if (!user) {
     res.status(404);
@@ -64,7 +73,8 @@ const updateOneItem = async (req, res) => {
     res.status(404);
     throw new Error('cart item not found');
   }
-  item.quantity = quantity;
+  item.quantity = value.quantity;
+  item.amount = item.price * value.quantity;
   res.json(await user.save());
 };
 

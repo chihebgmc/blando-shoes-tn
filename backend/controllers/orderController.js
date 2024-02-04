@@ -33,4 +33,15 @@ const createOrder = async (req, res) => {
   res.json(result);
 };
 
-export { createOrder };
+const getAllOrders = async (req, res) => {
+  const user = req.user;
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  const orders = await Order.find({ user: user._id });
+  res.json(orders);
+};
+
+export { createOrder, getAllOrders };

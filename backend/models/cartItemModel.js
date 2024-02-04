@@ -12,6 +12,7 @@ export const cartItemSchema = new mongoose.Schema({
   img: { type: String, required: true },
   size: { type: Number, required: true },
   color: { type: String, required: true },
+  price: { type: Number },
   quantity: { type: Number, min: 1, default: 1 },
   amount: { type: Number },
 });
@@ -19,13 +20,12 @@ export const cartItemSchema = new mongoose.Schema({
 // Define the cart item model
 const CartItem = mongoose.model('CartItem', cartItemSchema);
 
-export const validate = data => {
+export const validate = (data, { update }) => {
   const schema = Joi.object({
-    product: Joi.string().min(24).required(),
-    size: Joi.number().required(),
-    color: Joi.string().min(3).required(),
-    quantity: Joi.number().default(1),
-    amount: Joi.number(),
+    product: update ? Joi.string().min(24) : Joi.string().min(24).required(),
+    size: update ? Joi.number() : Joi.number().required(),
+    color: update ? Joi.string().min(3) : Joi.string().min(3).required(),
+    quantity: update ? Joi.number().required() : Joi.number().default(1),
   });
   const result = schema.validate(data, { abortEarly: false });
   return result;
