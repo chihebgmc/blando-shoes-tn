@@ -1,5 +1,6 @@
 // Dependencies
 import User, { validate } from '../models/userModel.js';
+import Order from '../models/orderModel.js';
 
 // @desc   Auth user/set token
 // @route  POST /api/users/auth
@@ -125,6 +126,25 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
+// @desc   Delete user
+// @route  DELETE /api/users/delete
+// @access Private
+const deleteUser = async (req, res) => {
+  const user = req.user;
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  // Delete order related to a specific user
+  await Order.deleteMany({ user: user.id });
+
+  // Delete user
+  const result = await user.deleteOne();
+
+  res.send(result);
+};
+
 // Export the module
 export {
   authUser,
@@ -132,4 +152,5 @@ export {
   logoutUser,
   getUserProfile,
   updateUserProfile,
+  deleteUser,
 };

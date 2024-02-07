@@ -10,6 +10,7 @@ import {
   logoutUser,
   getUserProfile,
   updateUserProfile,
+  deleteUser,
 } from '../controllers/userController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import asyncHandler from 'express-async-handler';
@@ -26,6 +27,7 @@ router
   .route('/profile')
   .get(asyncHandler(protect), asyncHandler(getUserProfile))
   .put(asyncHandler(protect), asyncHandler(updateUserProfile));
+router.delete('/delete', asyncHandler(protect), asyncHandler(deleteUser));
 
 // Export the module
 export default router;

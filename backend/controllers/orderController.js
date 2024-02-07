@@ -44,4 +44,45 @@ const getAllOrders = async (req, res) => {
   res.json(orders);
 };
 
-export { createOrder, getAllOrders };
+const getOrder = async (req, res) => {
+  const user = req.user;
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  const order = await Order.findById(req.params.id);
+  if (!order) {
+    res.status(404);
+    throw new Error('Order not found');
+  }
+  res.json(order);
+};
+
+const updateOrder = async (req, res) => {
+  const user = req.user;
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  const order = await Order.findById(req.params.id);
+  if (!order) {
+    res.status(404);
+    throw new Error('Order not found');
+  }
+
+  const { status } = req.body;
+
+  if (['pending', 'fullfiled', 'rejected'].indexOf(status) === -1) {
+    res.status(400);
+    throw new Error('status should be pending or fullfiled or rejected');
+  }
+
+  // Update order status
+  order.status = status;
+
+  res.json(await order.save());
+};
+
+export { createOrder, getAllOrders, getOrder, updateOrder };
