@@ -1,5 +1,6 @@
 // Dependencies
 import mongoose from 'mongoose';
+import Joi from 'joi';
 
 // Define the product schema
 const productSchema = new mongoose.Schema({
@@ -14,6 +15,23 @@ const productSchema = new mongoose.Schema({
 
 // Define the product model
 const Product = mongoose.model('Product', productSchema);
+
+export const validate = (data, { update }) => {
+  const schema = Joi.object({
+    reference: update ? Joi.string().min(24) : Joi.string().min(24).required(),
+    img: update ? Joi.string() : Joi.string().required(),
+    size: update
+      ? Joi.array().items(Joi.string())
+      : Joi.array().items(Joi.string()).required(),
+    color: update
+      ? Joi.array().items(Joi.string())
+      : Joi.array().items(Joi.string()).required(),
+    price: update ? Joi.number() : Joi.number().required(1),
+    inStock: update ? Joi.boolean() : Joi.boolean().required(),
+  });
+  const result = schema.validate(data, { abortEarly: false });
+  return result;
+};
 
 // Export the module
 export default Product;

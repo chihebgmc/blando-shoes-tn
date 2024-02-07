@@ -80,6 +80,11 @@ const logoutUser = async (req, res) => {
 // @route  GET /api/users/profile
 // @access Private
 const getUserProfile = async (req, res) => {
+  const user = req.user;
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
   res.status(200).json(req.user);
 };
 
@@ -107,23 +112,23 @@ const updateUserProfile = async (req, res) => {
     throw new Error(error.message);
   }
 
-  // Update user
+  if (!req.user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
   const user = await User.findById(req.user._id);
 
-  if (user) {
-    user.firstName = value.firstName || user.firstName;
-    user.lastName = value.lastName || user.lastName;
-    user.email = value.email || user.email;
-    user.address = value.address || user.address;
-    user.phone = value.phone || user.phone;
-    user.password = value.password || user.password;
-    const updatedUser = (await user.save())._doc;
-    delete updatedUser.password;
-    res.status(200).json(updatedUser);
-  } else {
-    res.status(400);
-    throw new Error('Invalid user data');
-  }
+  // Update user
+  user.firstName = value.firstName || user.firstName;
+  user.lastName = value.lastName || user.lastName;
+  user.email = value.email || user.email;
+  user.address = value.address || user.address;
+  user.phone = value.phone || user.phone;
+  user.password = value.password || user.password;
+  const updatedUser = (await user.save())._doc;
+  delete updatedUser.password;
+  res.status(200).json(updatedUser);
 };
 
 // @desc   Delete user
@@ -141,6 +146,11 @@ const deleteUser = async (req, res) => {
 
   // Delete user
   const result = await user.deleteOne();
+
+  res.cookie('jwt', '', {
+    httpOnly: true,
+    expires: new Date(0),
+  });
 
   res.send(result);
 };
