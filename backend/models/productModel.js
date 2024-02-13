@@ -4,13 +4,17 @@ import Joi from 'joi';
 
 // Define the product schema
 const productSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
   reference: { type: String, required: true },
   img: { type: String, required: true },
   categories: { type: [String], required: true },
   size: { type: [Number], required: true },
   color: { type: [String], required: true },
   price: { type: Number, required: true },
-  inStock: { type: Boolean, required: true },
+  inStock: { type: Boolean, default: true },
 });
 
 // Define the product model
@@ -18,16 +22,19 @@ const Product = mongoose.model('Product', productSchema);
 
 export const validate = (data, { update }) => {
   const schema = Joi.object({
-    reference: update ? Joi.string().min(24) : Joi.string().min(24).required(),
+    reference: update ? Joi.string() : Joi.string().required(),
     img: update ? Joi.string() : Joi.string().required(),
-    size: update
+    categories: update
       ? Joi.array().items(Joi.string())
       : Joi.array().items(Joi.string()).required(),
+    size: update
+      ? Joi.array().items(Joi.number())
+      : Joi.array().items(Joi.number()).required(),
     color: update
       ? Joi.array().items(Joi.string())
       : Joi.array().items(Joi.string()).required(),
     price: update ? Joi.number() : Joi.number().required(1),
-    inStock: update ? Joi.boolean() : Joi.boolean().required(),
+    inStock: update ? Joi.boolean() : Joi.boolean().default(true),
   });
   const result = schema.validate(data, { abortEarly: false });
   return result;
