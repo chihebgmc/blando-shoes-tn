@@ -109,7 +109,7 @@ const deleteProduct = async (req, res) => {
     throw new Error('product not found');
   }
 
-  res.status(201).json({ _id: product._id });
+  res.status(200).json({ _id: product._id });
 };
 
 export { addProduct, getAllProducts, getProduct, updateProduct, deleteProduct };

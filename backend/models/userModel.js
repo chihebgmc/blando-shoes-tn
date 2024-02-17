@@ -71,6 +71,9 @@ const User = mongoose.model('User', userSchema);
 export const validate = (data, { update }) => {
   const schema = Joi.object({
     firstName: update ? Joi.string().min(3) : Joi.string().min(3).required(),
+    // .error(errors =>
+    //   errors.forEach(error => console.log(error.messages))
+    // ),
     lastName: update ? Joi.string().min(3) : Joi.string().min(3).required(),
     address: update ? Joi.string().min(3) : Joi.string().min(3).required(),
     email: update ? Joi.string().email() : Joi.string().email().required(),

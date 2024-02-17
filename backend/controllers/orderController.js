@@ -40,7 +40,10 @@ const getAllOrders = async (req, res) => {
     throw new Error('User not found');
   }
 
-  const orders = await Order.find({ user: user._id });
+  const orders =
+    user.role === 'admin'
+      ? await Order.find()
+      : await Order.find({ user: user._id });
   res.json(orders);
 };
 

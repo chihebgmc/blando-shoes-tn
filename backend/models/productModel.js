@@ -3,19 +3,24 @@ import mongoose from 'mongoose';
 import Joi from 'joi';
 
 // Define the product schema
-const productSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+const productSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    reference: { type: String, required: true },
+    img: { type: String, required: true },
+    categories: { type: [String], required: true },
+    size: { type: [Number], required: true },
+    color: { type: [String], required: true },
+    price: { type: Number, required: true },
+    inStock: { type: Boolean, default: true },
   },
-  reference: { type: String, required: true },
-  img: { type: String, required: true },
-  categories: { type: [String], required: true },
-  size: { type: [Number], required: true },
-  color: { type: [String], required: true },
-  price: { type: Number, required: true },
-  inStock: { type: Boolean, default: true },
-});
+  {
+    timestamps: true,
+  }
+);
 
 // Define the product model
 const Product = mongoose.model('Product', productSchema);

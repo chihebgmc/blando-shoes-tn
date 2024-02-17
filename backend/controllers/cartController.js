@@ -39,7 +39,7 @@ const addToCart = async (req, res) => {
     user.cart.push(cartItem);
   }
 
-  res.status(201).json(await user.save());
+  res.status(201).json((await user.save()).cart);
 };
 
 const getCartItems = async (req, res) => {
