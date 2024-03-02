@@ -131,9 +131,7 @@ const updateUserProfile = async (req, res) => {
     throw new Error('User not found');
   }
 
-  // const user = await User.findById(req.user._id);
-
-  // // Update user
+  // Update user
   if (req.user.role === 'user') {
     const updatedUser = (
       await User.findByIdAndUpdate(req.user._id, value, {
@@ -156,16 +154,6 @@ const updateUserProfile = async (req, res) => {
     delete updatedUser.password;
     res.status(200).json(updatedUser);
   }
-  // user.name = value.name || user.name;
-  // user.email = value.email || user.email;
-  // user.address = value.address || user.address;
-  // user.phone = value.phone || user.phone;
-  // user.password = value.password || user.password;
-  // if (user.role === "admin") {
-  //   user.facebook =
-  // }
-  // const updatedUser = (await user.save())._doc;
-  // delete updatedUser.password;
 };
 
 // @desc   Delete user
