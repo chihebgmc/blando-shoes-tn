@@ -12,6 +12,7 @@ import {
   getOrder,
   updateOrder,
 } from '../controllers/orderController.js';
+import { admin } from '../middleware/adminMiddleware.js';
 
 // Initialize router
 const router = express.Router();
@@ -25,7 +26,7 @@ router
 router
   .route('/:id')
   .get(asyncHandler(protect), asyncHandler(getOrder))
-  .put(asyncHandler(protect), asyncHandler(updateOrder));
+  .put(asyncHandler(protect), asyncHandler(admin), asyncHandler(updateOrder));
 
 // Export the module
 export default router;

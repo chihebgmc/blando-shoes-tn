@@ -20,10 +20,15 @@ const addToCart = async (req, res) => {
 
   const { price, reference, img } = await Product.findById(product);
 
-  const item = user.cart.find(item => item.product.toString() === product);
+  const item = user.cart.find(
+    item => item.product.toString() === product && item.size == size
+  );
 
+  console.log(item);
   if (item) {
-    item.amount = ++item.quantity * price;
+    item.quantity += quantity;
+    // item.amount = ++item.quantity * price;
+    item.amount = item.quantity * price;
   } else {
     const amount = value.quantity * price;
     const cartItem = new CartItem({
@@ -90,7 +95,12 @@ const deleteOneItem = async (req, res) => {
     throw new Error('cart item not found');
   }
   await item.deleteOne();
-  res.json(await user.save());
+  await user.save();
+  const total = user.cart.reduce(
+    (accumulator, currentItem) => accumulator + currentItem.amount,
+    0
+  );
+  res.json({ item, total });
 };
 
 const deleteManyItems = async (req, res) => {

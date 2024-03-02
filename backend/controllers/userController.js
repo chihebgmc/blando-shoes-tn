@@ -25,14 +25,12 @@ const authUser = async (req, res) => {
 // @route  POST /api/users
 // @access Public
 const registerUser = async (req, res) => {
-  const { firstName, lastName, email, password, phone, address, role } =
-    req.body;
+  const { name, email, password, phone, address, role } = req.body;
 
   // Validate data
   const { value, error } = validate(
     {
-      firstName,
-      lastName,
+      name,
       email,
       password,
       phone,
@@ -85,20 +83,36 @@ const getUserProfile = async (req, res) => {
     res.status(404);
     throw new Error('User not found');
   }
-  res.status(200).json(req.user);
+
+  delete user._doc.cart;
+  res.status(200).json(user._doc);
 };
 
 // @desc   Update user profile
 // @route  PUT /api/users/profile
 // @access Private
 const updateUserProfile = async (req, res) => {
-  const { firstName, lastName, email, password, phone, address } = req.body;
+  if (req.user.role === 'admin') {
+    var {
+      name,
+      email,
+      password,
+      phone,
+      address,
+      facebook,
+      instagram,
+      whatsapp,
+      image,
+      description,
+    } = req.body;
+  } else {
+    var { name, email, password, phone, address } = req.body;
+  }
 
   // Validate data
   const { value, error } = validate(
     {
-      firstName,
-      lastName,
+      name,
       email,
       password,
       phone,
@@ -117,18 +131,41 @@ const updateUserProfile = async (req, res) => {
     throw new Error('User not found');
   }
 
-  const user = await User.findById(req.user._id);
+  // const user = await User.findById(req.user._id);
 
-  // Update user
-  user.firstName = value.firstName || user.firstName;
-  user.lastName = value.lastName || user.lastName;
-  user.email = value.email || user.email;
-  user.address = value.address || user.address;
-  user.phone = value.phone || user.phone;
-  user.password = value.password || user.password;
-  const updatedUser = (await user.save())._doc;
-  delete updatedUser.password;
-  res.status(200).json(updatedUser);
+  // // Update user
+  if (req.user.role === 'user') {
+    const updatedUser = (
+      await User.findByIdAndUpdate(req.user._id, value, {
+        new: true,
+      })
+    )._doc;
+    console.log(updatedUser);
+    delete updatedUser.password;
+    res.status(200).json(updatedUser);
+  } else {
+    const updatedUser = (
+      await User.findByIdAndUpdate(
+        req.user._id,
+        { ...value, facebook, instagram, whatsapp, image, description },
+        {
+          new: true,
+        }
+      )
+    )._doc;
+    delete updatedUser.password;
+    res.status(200).json(updatedUser);
+  }
+  // user.name = value.name || user.name;
+  // user.email = value.email || user.email;
+  // user.address = value.address || user.address;
+  // user.phone = value.phone || user.phone;
+  // user.password = value.password || user.password;
+  // if (user.role === "admin") {
+  //   user.facebook =
+  // }
+  // const updatedUser = (await user.save())._doc;
+  // delete updatedUser.password;
 };
 
 // @desc   Delete user

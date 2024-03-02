@@ -9,11 +9,31 @@ const addProduct = async (req, res) => {
   }
 
   // Get the data from request body
-  const { reference, img, categories, size, color, price, inStock } = req.body;
+  const {
+    reference,
+    name,
+    description,
+    img,
+    categories,
+    size,
+    color,
+    price,
+    inStock,
+  } = req.body;
 
   // Validate data
   const { value, error } = validate(
-    { reference, img, categories, size, color, price, inStock },
+    {
+      reference,
+      name,
+      description,
+      img,
+      categories,
+      size,
+      color,
+      price,
+      inStock,
+    },
     { update: false }
   );
 
@@ -24,7 +44,7 @@ const addProduct = async (req, res) => {
   }
 
   // Check if product already exists
-  const productExist = await Product.findOne({ reference });
+  const productExist = await Product.findOne({ reference, color });
   if (productExist) {
     res.status(400);
     throw new Error('Product already exists');
@@ -33,7 +53,7 @@ const addProduct = async (req, res) => {
   // Create product
   const product = await Product.create({ ...value, user: user._id });
   if (product) {
-    res.status(201).json({ message: 'Product added successfuly' });
+    res.status(201).json(product);
   } else {
     res.status(400);
     throw new Error('Invalid data');
@@ -64,11 +84,31 @@ const updateProduct = async (req, res) => {
   }
 
   // Get the data from request body
-  const { reference, img, categories, size, color, price, inStock } = req.body;
+  const {
+    reference,
+    name,
+    description,
+    img,
+    categories,
+    size,
+    color,
+    price,
+    inStock,
+  } = req.body;
 
   // Validate data
   const { value, error } = validate(
-    { reference, img, categories, size, color, price, inStock },
+    {
+      reference,
+      name,
+      description,
+      img,
+      categories,
+      size,
+      color,
+      price,
+      inStock,
+    },
     { update: true }
   );
 

@@ -40,11 +40,18 @@ const getAllOrders = async (req, res) => {
     throw new Error('User not found');
   }
 
-  const orders =
-    user.role === 'admin'
-      ? await Order.find()
-      : await Order.find({ user: user._id });
-  res.json(orders);
+  // const orders =
+  //   user.role === 'admin'
+  //     ? await Order.find()
+  //     : await Order.find({ user: user._id });
+
+  if (user.role === 'admin') {
+    const orders = await Order.find().populate('user');
+    res.json(orders);
+  } else {
+    const orders = await Order.find({ user: user._id });
+    res.json(orders);
+  }
 };
 
 const getOrder = async (req, res) => {

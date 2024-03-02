@@ -8,12 +8,17 @@ import { cartItemSchema } from './cartItemModel.js';
 // Define the user schema
 const userSchema = new mongoose.Schema(
   {
-    firstName: { type: String, required: true, trim: true },
-    lastName: { type: String, required: true, trim: true },
+    name: { type: String, required: true, trim: true },
     address: { type: String, required: true, trim: true },
     email: { type: String, required: true, trim: true },
     phone: { type: String, required: true, trim: true },
     password: { type: String, required: true, trim: true },
+    facebook: { type: String, trim: true },
+    instagram: { type: String, trim: true },
+    whatsapp: { type: String, trim: true },
+    image: { type: String },
+    description: { type: String },
+
     role: {
       type: String,
       enum: ['admin', 'user'],
@@ -70,11 +75,10 @@ const User = mongoose.model('User', userSchema);
 
 export const validate = (data, { update }) => {
   const schema = Joi.object({
-    firstName: update ? Joi.string().min(3) : Joi.string().min(3).required(),
+    name: update ? Joi.string().min(3) : Joi.string().min(3).required(),
     // .error(errors =>
     //   errors.forEach(error => console.log(error.messages))
     // ),
-    lastName: update ? Joi.string().min(3) : Joi.string().min(3).required(),
     address: update ? Joi.string().min(3) : Joi.string().min(3).required(),
     email: update ? Joi.string().email() : Joi.string().email().required(),
     phone: update
