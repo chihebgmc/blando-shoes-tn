@@ -106,7 +106,7 @@ const updateUserProfile = async (req, res) => {
       description,
     } = req.body;
   } else {
-    var { name, email, password, phone, address } = req.body;
+    var { name, email, password, oldPassword, phone, address } = req.body;
   }
 
   // Validate data
@@ -130,27 +130,40 @@ const updateUserProfile = async (req, res) => {
     res.status(404);
     throw new Error('User not found');
   }
+  const user = await User.findById(req.user._id);
+
+  if (oldPassword) {
+    // Check for old password
+    console.log(user);
+    const matched = await user.matchPassword(oldPassword);
+    console.log(matched);
+    if (!matched) {
+      throw new Error('Password invalid');
+    }
+  }
 
   // Update user
   if (req.user.role === 'user') {
-    const updatedUser = (
-      await User.findByIdAndUpdate(req.user._id, value, {
-        new: true,
-      })
-    )._doc;
-    console.log(updatedUser);
+    user.name = value.name || user.name;
+    user.email = value.email || user.email;
+    user.address = value.address || user.address;
+    user.phone = value.phone || user.phone;
+    user.password = value.password || user.password;
+    const updatedUser = (await user.save())._doc;
     delete updatedUser.password;
     res.status(200).json(updatedUser);
   } else {
-    const updatedUser = (
-      await User.findByIdAndUpdate(
-        req.user._id,
-        { ...value, facebook, instagram, whatsapp, image, description },
-        {
-          new: true,
-        }
-      )
-    )._doc;
+    user.name = value.name || user.name;
+    user.email = value.email || user.email;
+    user.address = value.address || user.address;
+    user.phone = value.phone || user.phone;
+    user.password = value.password || user.password;
+    user.facebook = value.facebook || user.facebook;
+    user.instagram = value.instagram || user.instagram;
+    user.whatsapp = value.whatsapp || user.whatsapp;
+    user.image = value.image || user.image;
+    user.description = value.description || user.description;
+    const updatedUser = (await user.save())._doc;
     delete updatedUser.password;
     res.status(200).json(updatedUser);
   }
