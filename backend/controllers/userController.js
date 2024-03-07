@@ -97,6 +97,7 @@ const updateUserProfile = async (req, res) => {
       name,
       email,
       password,
+      oldPassword,
       phone,
       address,
       facebook,
@@ -132,23 +133,23 @@ const updateUserProfile = async (req, res) => {
   }
   const user = await User.findById(req.user._id);
 
-  if (oldPassword) {
-    // Check for old password
-    console.log(user);
-    const matched = await user.matchPassword(oldPassword);
-    console.log(matched);
-    if (!matched) {
-      throw new Error('Password invalid');
-    }
-  }
-
   // Update user
   if (req.user.role === 'user') {
     user.name = value.name || user.name;
     user.email = value.email || user.email;
     user.address = value.address || user.address;
     user.phone = value.phone || user.phone;
-    user.password = value.password || user.password;
+    if (oldPassword) {
+      // Check for old password
+      console.log(user);
+      const matched = await user.matchPassword(oldPassword);
+      console.log(matched);
+      if (!matched) {
+        throw new Error('Password invalid');
+      } else {
+        user.password = value.password || user.password;
+      }
+    }
     const updatedUser = (await user.save())._doc;
     delete updatedUser.password;
     res.status(200).json(updatedUser);
@@ -157,7 +158,17 @@ const updateUserProfile = async (req, res) => {
     user.email = value.email || user.email;
     user.address = value.address || user.address;
     user.phone = value.phone || user.phone;
-    user.password = value.password || user.password;
+    if (oldPassword) {
+      // Check for old password
+      console.log(user);
+      const matched = await user.matchPassword(oldPassword);
+      console.log(matched);
+      if (!matched) {
+        throw new Error('Password invalid');
+      } else {
+        user.password = value.password || user.password;
+      }
+    }
     user.facebook = value.facebook || user.facebook;
     user.instagram = value.instagram || user.instagram;
     user.whatsapp = value.whatsapp || user.whatsapp;
