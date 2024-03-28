@@ -1,6 +1,8 @@
 // Dependencies
+import jwt from 'jsonwebtoken';
 import User, { validate } from '../models/userModel.js';
 import Order from '../models/orderModel.js';
+import nodemailer from 'nodemailer';
 
 // @desc   Auth user/set token
 // @route  POST /api/users/auth
@@ -61,6 +63,19 @@ const registerUser = async (req, res) => {
     res.status(400);
     throw new Error('Invalid user data');
   }
+};
+
+// @desc   Get one user
+// @route  GET /api/users/:id
+// @access Public
+const getOneUser = async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(id).select('-password');
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+  res.status(200).json(user);
 };
 
 // @desc   Logout user
@@ -134,7 +149,9 @@ const updateUserProfile = async (req, res) => {
   const user = await User.findById(req.user._id);
 
   // Update user
-  if (req.user.role === 'user') {
+  if (password && !oldPassword) {
+    throw new Error('Send old password');
+  } else if (req.user.role === 'user') {
     user.name = value.name || user.name;
     user.email = value.email || user.email;
     user.address = value.address || user.address;
@@ -169,12 +186,13 @@ const updateUserProfile = async (req, res) => {
         user.password = value.password || user.password;
       }
     }
-    user.facebook = value.facebook || user.facebook;
-    user.instagram = value.instagram || user.instagram;
-    user.whatsapp = value.whatsapp || user.whatsapp;
-    user.image = value.image || user.image;
-    user.description = value.description || user.description;
+    user.facebook = facebook || user.facebook;
+    user.instagram = instagram || user.instagram;
+    user.whatsapp = whatsapp || user.whatsapp;
+    user.image = image || user.image;
+    user.description = description || user.description;
     const updatedUser = (await user.save())._doc;
+    console.log(updatedUser);
     delete updatedUser.password;
     res.status(200).json(updatedUser);
   }
@@ -204,6 +222,77 @@ const deleteUser = async (req, res) => {
   res.send(result);
 };
 
+const forgetPassword = async (req, res) => {
+  const { email } = req.body;
+  console.log(email);
+  const oldUser = await User.findOne({ email });
+  console.log(oldUser);
+  if (!oldUser) {
+    res.status(400);
+    throw new Error('User not found.');
+  }
+
+  const secret = process.env.JWT_SECRET + oldUser.password;
+  const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, secret, {
+    expiresIn: '5m',
+  });
+  const link = `http://localhost:5000/api/users/reset-password/${oldUser._id}/${token}`;
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'chihebchaboudev@gmail.com',
+      pass: 'chPWd4e5v21e5l12o15p16m13e5n14t20',
+    },
+  });
+
+  const mailOptions = {
+    from: 'youremail@gmail.com',
+    to: 'chihebchabouparttime@gmail.com',
+    subject: 'Password Reset',
+    text: link,
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+  console.log(link);
+  res.send('done');
+};
+
+const resetPassword = async (req, res) => {
+  const { id, token } = req.params;
+  console.log(req.params);
+  const oldUser = await User.findOne({ _id: id });
+  if (!oldUser) {
+    res.status(400);
+    throw new Error('User not found.');
+  }
+  const secret = process.env.JWT_SECRET + oldUser.password;
+  const { email } = jwt.verify(token, secret);
+  res.json({ email, id });
+};
+
+const resetPasswordFinish = async (req, res) => {
+  const { id, token } = req.params;
+  const { password } = req.body;
+  console.log(req.params);
+  const oldUser = await User.findOne({ _id: id });
+  if (!oldUser) {
+    res.status(400);
+    throw new Error('User not found.');
+  }
+  const secret = process.env.JWT_SECRET + oldUser.password;
+  jwt.verify(token, secret);
+  oldUser.password = password;
+  await oldUser.save();
+
+  res.json({ message: 'Password updated' });
+};
+
 // Export the module
 export {
   authUser,
@@ -212,4 +301,8 @@ export {
   getUserProfile,
   updateUserProfile,
   deleteUser,
+  getOneUser,
+  forgetPassword,
+  resetPassword,
+  resetPasswordFinish,
 };

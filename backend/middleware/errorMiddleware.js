@@ -8,9 +8,19 @@ const errorHandler = (err, req, res, next) => {
   let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   let message = statusCode === 500 ? 'Server error' : err.message;
 
-  if (err.name === 'CastError' && err.kind === 'ObjectId') {
+  if (err.name === 'CastError') {
     statusCode = 404;
     message = 'Resource not found';
+  }
+
+  if (err.name === 'JsonWebTokenError') {
+    statusCode = 400;
+    message = 'Invalid Link';
+  }
+
+  if (err.name === 'TokenExpiredError') {
+    statusCode = 400;
+    message = 'Expired Link';
   }
 
   res.status(statusCode).json({
